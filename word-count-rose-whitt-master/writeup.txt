@@ -1,0 +1,134 @@
+COMP 321 Project 2: Word Count
+<Insert your name and NetID.>
+
+---(Do not write lines of text that exceed the width of this line.)------------
+
+DESIGN DESCRIPTION
+
+<Insert a description of your solution in English.  Describe any design
+decisions that you made, such as the data structures and algorithms that you
+used.  Do not submit pseudo-code.> 
+
+	I first implemented a very basic word counting in do_count. In order
+to get a feel for the assignment and what should be outputted.
+	I then added the error catching using the app_error_fmt method
+and referenced the lab for formatting.
+	I then started to understand the usefulness of structs. I created
+a counts struct for storing the total counts of all files and incremented
+it no matter what file.
+	I detected words by finding white space, although at first I thought
+it should be whitespace or a new line, but I discovered that that would not
+be correct if a file had text and multiple empty lines.
+	I then created a structure called 'file_count' that stored a
+reference to the name of a file and a counts structure. I used this in my
+do_counts for loop, creating a new instance of this structure for each file.
+	I then realized that I needed to somehow store these/remember them.
+That was a problem for later.
+	Next, I decided to tackle asciibetical. I first did it using arrays
+to get a feel for it. Then using malloc, but just inputing the input_files[].
+	Going back to figuring out how to store/rememember each structure,
+I decided on a linked list implementation using malloc for storage and
+memory. I created a structure called "Node" with two structures in it:
+a file_count type structure called 'data' and a "Node*" type structure
+called "next". The data would hold a given file's filename and counts
+using the previously mentioned file_count structure, and the next
+would be a "pointer" to the next Node. I thought of this in a recursive
+manner almost.
+	I then needed a way to actually add to this linked list. I
+wrote a helper function called 'append' that had two parameters: a
+reference to the pointer of the head (type Node**) and a structure
+of type file_count storing the data of the new node that we want to
+append. We first create an instantiation of the Node* struct for our
+new node using malloc memory of the size of a Node. We then make the
+'head' the 'last' node. We assign the new data node's data to be
+the inputed data. Since the new node will be at the end of the list,
+we set the 'next' value to NULL. If the linked list is currently empty,
+we simply set the head node to the new node. If it is not, we traverse
+until we get to the last node and set its next to our new node. We then
+set the 'last' to the new node since weve successfully appended it, and
+do an empty return.
+	Before getting into my for loop, I created an instantiation of the
+Node* struct called "head" and set it to NULL.
+	Now, inside the for loop: I created an instantiation of the
+file_count structure (to be later assigned to this file's node's data).
+I set the structure's pieces to the correct things (file name to the
+file name, the counts to zero) and entered the while. After the while,
+but before the for loop ended, I called the append helper, passing
+the head's memory address and the file count structure. This
+successfully added this file's node to the linked list, but not in
+any properly sorted way. It is simply in the order in which the
+the files are given.
+	I realized I had an issue that when a file had an error it would
+terminate the code. To fix this, I created an int e variable, originally
+set to 0, and changed it to 1 if an error occured. Then, so we did not
+work with a broken file, I used 'continue' to move on to the next file in
+the list. I then returned the value of e at the end, fixing this issue.
+	I realized after a while that I had an issue with word
+counting. Basically, I had been operating under the impression that
+I simply needed to check that isspace(c) was true, aka count a
+white space as the end of a word. This obviously caused an issue
+if there was a double space or an empty line. After some investigating,
+I realized that I needed to not check that the current char was a
+space, but that the PREVIOUS char was a space and the CURRENT char
+was not a space. To track the previous char, I made a prev_char
+variable outside of the while loop, inside the for loop. At the
+very end of the while, but while still in the while loop, I set
+prev_char to the current char. This then allowed me to check that
+the current char was not a space but that the previous char
+was.
+	After iterating over all files and adding the proper nodes, I
+needed to sort in ASCIIbetical order. Luckily, I knew the proper
+logic from my earlier trials. I decided create a helper that
+found the smallest ASCII file name of each Linked List,
+printed it, deleted it,
+and continued doing that process until the Linked List was empty.
+I originally thought I should sort the list, but I found this
+to be easier to implement while still having the same
+functionality. I called this function after the for loop,
+feeding it the head node and the flags.
+
+
+TESTING STRATEGY
+
+<Insert a detailed description of your testing strategy: at a minimum
+you should explain how you tested your code, how you selected your inputs,
+what those inputs were, and why you believe those inputs were sufficient
+to test your code.>
+
+1. Double Spaces
+
+2. Empty Lines
+
+3. All Error Files
+
+4. First File is Error
+
+5. Mixture of Good and Bad Files
+
+6. File With Only One Word
+
+7. Catches "cannot open file" Error
+	- but does not terminate
+
+8. Catches "cannot read file" Error
+	- but does not termiante
+
+9. Inputs multiple of the same file
+
+I ensured that my implementation does not detect spaces as the mark of
+the end of the word by testing it on files with double spaces and files
+with empty lines (lines with nothing but the '\n' character. 
+I ensured that my implementation still printed the ending totals, all
+with values of zero, even when all the inputed files throw errors.
+Similarily, I ensured that my implemenation did not terminate upon
+first meeting an error, or mess up when there was a mixture of
+invalid and valid files. A very important one, and easy to miss, is
+ensuring that a file with only one word and one line (no spaces)
+is counted as having one word. Not just x amount of characters,
+one line, and zero words. I ensured that the program did not
+terminate upon encountering an error, or reset the error value
+when given a file without an error and never print the error.
+Finally, I ensured that my implementation worked properly
+when given an input with multiple of the same file. That is,
+it treated it as a new file, counted its individual totals
+(for each duplicate), and added all of the counts to the total.
